@@ -1,0 +1,16 @@
+fastapi
+python-dotenv
+uvicorn
+langchain
+langchain_community
+langchain_groq
+openai
+langchain_openai
+
+pwdlib
+jwt
+passlib[argon2]
+sqlalchemy
+python-jose[cryptography]
+authlib
+itsdangerous
