@@ -5,6 +5,7 @@ import SideBar from "./modules/SideBar";
 import CreateRoadmapModal from "./modules/CreateRoadmapModal";
 import GeneratingView from "./modules/GeneratingView";
 import axios from "axios";
+import DailyTasks from "./modules/DailyTasks";
 
     // ─── MOCK DATA ────────────────────────────────────────────────────────────────
 const MOCK_ROADMAPS = [
@@ -419,22 +420,24 @@ export default function Dashboard() {
             )}
 
             {/* ── OTHER PAGES (placeholder) ── */}
-            {["tasks", "progress", "resources"].includes(activePage) && (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                minHeight: "60vh", gap: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 48 }}>
-                  {{ tasks: "📅", progress: "📈", resources: "📚" }[activePage]}
-                </div>
-                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 20, fontWeight: 800, letterSpacing: "-0.4px" }}>
-                  {{ tasks: "Today's Tasks", progress: "Progress Tracker", resources: "Resource Library" }[activePage]}
-                </div>
-                <div style={{ fontSize: 13, color: "var(--muted)", maxWidth: 320, lineHeight: 1.6 }}>
-                  Create a roadmap first — tasks, progress tracking, and resources will appear here once your path is active.
-                </div>
-                <button className="btn-next" onClick={() => { setActivePage("roadmaps"); setShowCreate(true); }} style={{ padding: "10px 24px" }}>
-                  Create a Roadmap →
-                </button>
-              </div>
+            {["tasks"].includes(activePage) && (
+              // <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              //   minHeight: "60vh", gap: 16, textAlign: "center" }}>
+              //   <div style={{ fontSize: 48 }}>
+              //     {{ tasks: "📅", progress: "📈", resources: "📚" }[activePage]}
+              //   </div>
+              //   <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 20, fontWeight: 800, letterSpacing: "-0.4px" }}>
+              //     {{ tasks: "Today's Tasks", progress: "Progress Tracker", resources: "Resource Library" }[activePage]}
+              //   </div>
+              //   <div style={{ fontSize: 13, color: "var(--muted)", maxWidth: 320, lineHeight: 1.6 }}>
+              //     Create a roadmap first — tasks, progress tracking, and resources will appear here once your path is active.
+              //   </div>
+              //   <button className="btn-next" onClick={() => { setActivePage("roadmaps"); setShowCreate(true); }} style={{ padding: "10px 24px" }}>
+              //     Create a Roadmap →
+              //   </button>
+
+              // </div>
+              < DailyTasks />
             )}
 
           </div>

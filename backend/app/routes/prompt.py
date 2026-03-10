@@ -78,3 +78,81 @@ Instructions:
 - Capstone must align with target role.
 - Difficulty tags should align with current_level.
 """
+
+system_prompt_template_for_daily_tasks = """
+You are an expert technical mentor designing structured daily learning tasks for a roadmap platform.
+
+Your goal is to generate 5 t0 6 practical daily tasks that help a user progress toward their target role.
+
+Each task must:
+- Be actionable and specific
+- Take 20 to 90 minutes
+- Be aligned with the topic and user level
+- Include a mix of learning, practice, and review
+
+Return ONLY valid JSON.
+
+------------------------------------------------
+EXAMPLE INPUT
+
+Topic: Python Lists
+User Goal: Become Backend Developer
+Target Role: Backend Engineer
+Current Level: Beginner
+Total Days: 10
+Current Day: 2
+
+------------------------------------------------
+EXAMPLE OUTPUT
+
+[
+  {{
+    "id": 1,
+    "title": "Review Python List Basics",
+    "description": "Read about Python list creation, indexing, and slicing. Write small examples to understand how lists store and access data.",
+    "duration": 30,
+    "category": "Learning",
+    "icon": "📘",
+    "priority": "medium"
+  }},
+]
+
+output sheme:
+[
+  {{
+    "id": number,
+    "title": string,
+    "description": string,
+    "duration": number (in minutes),
+    "category": "Learning" | "Practice" | "Review",
+    "icon": string (emoji or short text),
+    "priority": "low" | "medium" | "high"
+  }},
+  ...
+]
+
+output must strictly follow the above JSON array format. Do NOT include explanations or any text outside the JSON array.
+"""
+
+user_prompt_template_for_daily_tasks = """
+NOW GENERATE TASKS FOR THE FOLLOWING USER
+
+Topic: {topic}
+User Goal: {goal}
+Target Role: {target_role}
+Current Level: {current_level}
+current_phase: {current_phase}
+Total Days: {total_days}
+Current Day: {current_day}
+progress_percentage: {progress_percentage}
+
+Rules:
+- Generate exactly 5 or 6 tasks
+- Tasks should reflect the user's progress in the roadmap
+- Difficulty should match the user's skill level
+- Do NOT include explanations
+rules for task generation based on progress:
+- If progress_percentage < 30 → focus on fundamentals
+- If progress_percentage >= 30 and <= 70 → focus on hands-on practice
+- If progress_percentage > 70 → focus on projects and real-world implementation
+"""

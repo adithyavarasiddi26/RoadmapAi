@@ -56,7 +56,8 @@ async def login(request: LoginRequest):
         user = db.query(User).filter(User.email == request.email).first()
         if not user:
             return {"error": "Invalid email or password."}
-        
+        if not user.password_hash:
+            return {"error": "User registered with Google OAuth. Please log in with Google."}
         if not password_hasher.verify(request.password, user.password_hash):
             return {"error": "Invalid email or password."}
         

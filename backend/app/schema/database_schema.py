@@ -69,7 +69,10 @@ class Topic(base):
     id = Column(Integer, primary_key=True)
     phase_id = Column(Integer, ForeignKey("phases.id", ondelete="CASCADE"))
     topic_name = Column(String)
+    days_completed = Column(Integer, default=0)
+    days_to_complete = Column(Integer)
     completed = Column(Boolean, default=False)
+    last_completed_at = Column(DateTime)
 
     phase = relationship("Phase", back_populates="topics")
 
@@ -82,5 +85,52 @@ class Capstone(base):
     title = Column(String)
     description = Column(Text)
     skills_validated = Column(JSON)
+    days_completed = Column(Integer, default=0)
+    days_to_complete = Column(Integer)
     
     roadmap = relationship("Roadmap", back_populates="capstone")
+
+# Daily Task Modal
+class DailyTask(base):
+    __tablename__ = "daily_tasks"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    topic_id = Column(Integer, ForeignKey("topics.id", ondelete="CASCADE"))
+
+    day_number = Column(Integer)
+    title = Column(String)
+    description = Column(Text)
+    duration = Column(Integer)  # in minutes
+    category = Column(String)  # Learning, Practice, Review
+    icon = Column(String)  # Emoji or short text
+    priority = Column(String)  # low, medium, high
+
+    completed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# tasks data for tracking progress and analytics
+# class TaskData(base):
+#     __tablename__ = "task_data"
+
+#     id = Column(Integer, primary_key=True)
+#     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+#     Phase_id = Column(Integer, ForeignKey("phases.id", ondelete="CASCADE"))
+#     topic_id = Column(Integer, ForeignKey("topics.id", ondelete="CASCADE"))
+#     topic_name = Column(String)
+#     days_completed = Column(Integer, default=0)
+#     days_to_complete = Column(Integer)
+#     completed = Column(Boolean, default=False)
+#     last_completed_at = Column(DateTime)
+
+class Current(base):
+    __tablename__ = "current_data"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id",ondelete="CASCADE"))
+    Current_phase_id = Column(Integer,ForeignKey("phases.id",ondelete="CASCADE"))
+    Current_topic_id = Column(Integer,ForeignKey("topics.id",ondelete="CASCADE"))
+    total_days = Column(Integer)
+    days_count = Column(Integer)
+
+    Current_topic = Column(String)

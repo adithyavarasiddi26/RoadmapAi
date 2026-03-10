@@ -1,12 +1,13 @@
 
 from fastapi import APIRouter, Depends
-from schema.database_schema import Roadmap, user_data, Phase, Topic, Capstone
+from schema.database_schema import Roadmap, user_data, Phase, Topic, Capstone, DailyTask, Current
 import json
 from schema.model import RoadmapRequest
 from database.db_connection import session
 from database.db_connection import engine
 from auth import get_current_user_from_cookie
 from .generate_rm_llm import generate_roadmap_llm
+from routes.daily_tasks import get_daily_tasks
 
 router = APIRouter()
 
@@ -63,10 +64,12 @@ async def generate_roadmap(request: RoadmapRequest, current_user = Depends(get_c
             for topic_name in phase_data["topics"]:
                 topic = Topic(
                     phase_id=phase.id,
-                    topic_name=topic_name
+                    topic_name=topic_name,
+                    days_completed = 0,
+                    days_to_complete = (phase.duration_weeks*7)/len(phase_data["topics"])
                 )   
                 db.add(topic)
-        db.flush()
+            db.flush()
         capstone_data = roadmap_json["final_capstone"]
 
         capstone = Capstone(
@@ -78,13 +81,52 @@ async def generate_roadmap(request: RoadmapRequest, current_user = Depends(get_c
 
         db.add(capstone)
         db.flush()
+        new_current_data = Current(
+            user_id = current_user.id,
+            Current_phase_id = db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id,
+            Current_topic_id = db.query(Topic).filter(Topic.phase_id == db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id).first().id,
+            total_days = roadmap_json.get("total_duration_weeks", 0) * 7,
+            days_count = 0,
+
+            Current_topic = db.query(Topic).filter(Topic.phase_id == db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id).first().topic_name
+
+        )
+        db.add(new_current_data)
+        db.flush()
+        # Store needed attributes before session closes
+        current_topic_id = new_current_data.Current_topic_id
+        current_topic_name = new_current_data.Current_topic
 
     except Exception as e:
         return {"error": f"Failed to save roadmap request: {str(e)}"}
     finally:
-        
         db.commit()
         db.close()
-    
-    
+
+    try:
+        db = session()
+        daily_tasks_from_llm = await get_daily_tasks(current_user)
+        print("Generated daily tasks after roadmap creation:", daily_tasks_from_llm)
+        for task in daily_tasks_from_llm:
+            print("[DEBUG] type of task:", type(task))
+            print("[DEBUG] task content:", task["duration"], task["title"], task["description"])
+            first_daily_tasks = DailyTask(
+                user_id = current_user.id,
+                topic_id = current_topic_id,
+                day_number = 1,
+                title = task["title"],
+                description = task["description"],
+                duration = task["duration"],
+                category = task["category"],
+                # icon = task["icon"],
+                priority = task["priority"]
+            )
+            db.add(first_daily_tasks)
+        db.flush()
+    except Exception as e:
+        return {"error": f"Failed to save daily tasks: {str(e)}"}
+    finally:
+        db.commit()
+        db.close()
+
     return {"message": "Roadmap request received and saved successfully."}

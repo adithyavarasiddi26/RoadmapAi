@@ -1,13 +1,23 @@
+import  { useEffect,useState } from "react";
+
 // ─── SIDEBAR NAV ITEMS ────────────────────────────────────────────────────────
 const NAV = [
   { icon: "⚡", label: "Overview", id: "overview" },
   { icon: "🗺️", label: "My Roadmaps", id: "roadmaps", badge: "3" },
   { icon: "📅", label: "Today's Tasks", id: "tasks" },
   { icon: "📈", label: "Progress", id: "progress" },
-  { icon: "📚", label: "Resources", id: "resources" },
 ];
 
 export default function Dashboard({ activePage, setActivePage }) {
+    const [details, setDetails] = useState("Default Name");
+    useEffect(() => {
+        // Fetch user info on mount
+        fetch("http://localhost:8000/api/me", {
+            credentials: "include", // include cookies
+        })
+        .then(res => res.json())
+        .then(data => setDetails(data));
+    }, []);
 
     return (
         <div>
@@ -33,17 +43,17 @@ export default function Dashboard({ activePage, setActivePage }) {
                     </button>
                 ))}
     
-                <div className="nav-section-label" style={{ marginTop: 12 }}>Account</div>
+                {/* <div className="nav-section-label" style={{ marginTop: 12 }}>Account</div>
                 <button className="nav-item"><span className="nav-icon">⚙️</span>Settings</button>
-                <button className="nav-item"><span className="nav-icon">🔔</span>Notifications</button>
+                <button className="nav-item"><span className="nav-icon">🔔</span>Notifications</button> */}
                 </nav>
     
                 <div className="sidebar-footer">
                 <div className="user-chip">
-                    <div className="avatar">A</div>
+                    <div className="avatar">{details.name?.charAt(0).toUpperCase() || "U"}</div>
                     <div className="user-info">
-                    <div className="user-name">Alex Johnson</div>
-                    <div className="user-role">Pro Plan</div>
+                    <div className="user-name">{details.name || "Default Name"}</div>
+                    <div className="user-role">{details.email || "default@example.com"}</div>
                     </div>
                     <div style={{ color: "var(--muted)", cursor: "pointer", fontSize: 14 }}>↗</div>
                 </div>
