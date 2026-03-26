@@ -10,6 +10,8 @@ async def get_roadmaps(current_user = Depends(get_current_user_from_cookie)):
     db = session()
     try:
         user_roadmaps = db.query(Roadmap).filter(Roadmap.user_id == current_user.id).all()
+        if not user_roadmaps:
+            return []
         for roadmap in user_roadmaps:
             roadmap.phases = db.query(Phase).filter(Phase.roadmap_id == roadmap.id).order_by(Phase.order_index).all()
             for phase in roadmap.phases:

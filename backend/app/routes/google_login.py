@@ -94,7 +94,7 @@ async def google_callback(request: Request):
     
 
     # create session
-    print(f"[DEBUG] Logging in user: {user.email} with provider ID: {user.provider_user_id}")
+    # print(f"[DEBUG] Logging in user: {user.email} with provider ID: {user.provider_user_id}")
     print(f"[DEBUG] User ID in database: {user.id}")
     request.session["user_id"] = user.id
 

@@ -94,13 +94,53 @@ function CheckIcon({ checked }) {
   );
 }
 
-export default function DailyTasks() {
-  const [tasks, setTasks] = useState(initialTasks.map(t => ({ ...t, completed: false })));
+export default function DailyTasks(overviewData) {
+
   const [submitted, setSubmitted] = useState(false);
   const [submitAnim, setSubmitAnim] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
   const [confetti, setConfetti] = useState([]);
   const [taskDetails, setTaskDetails] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentData, setCurrentData] = useState(null);
+
+
+  const toggleTask = (id) => {
+    if (submitted) return;
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/daily_tasks", {
+        withCredentials: true
+      });
+      console.log("API response for daily tasks:", response.data);
+      setTaskDetails(response.data);
+      setTasks(response.data);
+        
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const get_current_data = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/current_data", {
+        withCredentials: true
+      });
+      console.log("API response for current data:", response.data);
+      setCurrentData(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+useEffect(() => {
+  fetchTasks();
+  get_current_data();
+}, []);
 
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
@@ -108,17 +148,12 @@ export default function DailyTasks() {
   const progressPct = Math.round((completedCount / totalCount) * 100);
   const totalMins = tasks.reduce((a, t) => a + t.duration, 0);
   const remainingMins = tasks.filter(t => !t.completed).reduce((a, t) => a + t.duration, 0);
-
-  const toggleTask = (id) => {
-    if (submitted) return;
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
-
   
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!allDone || submitted) return;
     setSubmitAnim(true);
+    setLoading(true);
     const pieces = Array.from({ length: 32 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
@@ -126,9 +161,23 @@ export default function DailyTasks() {
       delay: Math.random() * 0.5,
       size: 4 + Math.random() * 6,
     }));
-    setConfetti(pieces);
-    setTimeout(() => setSubmitted(true), 600);
-    setTimeout(() => setConfetti([]), 2500);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/submit_tasks",
+        { tasks: tasks.map(t => ({ id: t.id, completed: t.completed })) },
+        { withCredentials: true }
+      );
+      console.log("Submit response:", response);
+      // Optionally, you can display a message from response.data here
+      setConfetti(pieces);
+      setTimeout(() => setSubmitted(true), 600);
+      setTimeout(() => setConfetti([]), 2500);
+    } catch (error) {
+      console.error("Submit error:", error);
+      // Optionally, show an error message to the user
+    } finally {
+      setLoading(false);
+    }
   };
 
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
@@ -143,6 +192,7 @@ export default function DailyTasks() {
       position: "relative",
       overflow: "hidden",
     }}>
+      {console.log("Fetched daily tasks:", taskDetails)}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -343,6 +393,13 @@ export default function DailyTasks() {
       </div> */}
 
       {/* Main content */}
+      {loading ? (
+        <div className="generating">
+          <div className="gen-spinner" />
+          <div className="gen-title">Generating new tasks<span style={{ color: "var(--accent)" }}>...</span></div>
+          <div className="gen-sub">Our AI is building daily tasks for you.</div>
+        </div>
+      ) : (
       <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px 10px" }}>
 
         {/* Header row */}
@@ -350,6 +407,13 @@ export default function DailyTasks() {
           <div>
             <div style={{ fontSize: "11px", color: "#57ab5a", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px", fontWeight: 600 }}>
               ◈ Daily Tasks
+            </div>
+            <div style={{ fontSize: "17px", color: "#bc6161", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px", fontWeight: 800 }}>
+              {console.log("Current data for header:", currentData)}
+              {currentData ? currentData.current_phase : "Loading..."}
+            </div>
+            <div style={{ fontSize: "11px", color: "#ff0000", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px", fontWeight: 600 }}>
+              Topic : {currentData ? currentData.current_topic : "Loading..."}
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#e6edf3", lineHeight: 1.2 }}>
               Today's Checklist
@@ -488,12 +552,12 @@ export default function DailyTasks() {
                     {task.category}
                   </span>
                   <span className="tag" style={{
-                    color: task.completed ? "#484f58" : priorityLabel[task.priority].color,
-                    borderColor: (task.completed ? "#21262d" : priorityLabel[task.priority].color + "44"),
+                    color: task.completed ? "#484f58" : (priorityLabel[task.priority]?.color || "#848d97"),
+                    borderColor: (task.completed ? "#21262d" : priorityLabel[task.priority]?.color + "44" || "#848d97"),
                     background: "transparent",
                     fontSize: "10px",
                   }}>
-                    {priorityLabel[task.priority].label}
+                    {priorityLabel[task.priority]?.label}
                   </span>
                 </div>
                 <p style={{
@@ -571,7 +635,8 @@ export default function DailyTasks() {
             )}
           </button>
         </div>
-      </div>
+      </div>)}
     </div>
+    
   );
 }

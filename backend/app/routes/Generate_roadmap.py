@@ -49,6 +49,7 @@ async def generate_roadmap(request: RoadmapRequest, current_user = Depends(get_c
 
         for index, phase_data in enumerate(roadmap_json["phases"]):
             phase = Phase(
+                user_id=current_user.id,
                 roadmap_id=new_roadmap.id,
                 phase_name=phase_data["phase_name"],
                 focus_area=phase_data["focus_area"],
@@ -63,6 +64,7 @@ async def generate_roadmap(request: RoadmapRequest, current_user = Depends(get_c
 
             for topic_name in phase_data["topics"]:
                 topic = Topic(
+                    user_id=current_user.id,
                     phase_id=phase.id,
                     topic_name=topic_name,
                     days_completed = 0,
@@ -73,6 +75,7 @@ async def generate_roadmap(request: RoadmapRequest, current_user = Depends(get_c
         capstone_data = roadmap_json["final_capstone"]
 
         capstone = Capstone(
+            user_id=current_user.id,
             roadmap_id=new_roadmap.id,
             title=capstone_data["title"],
             description=capstone_data["description"],
@@ -83,19 +86,20 @@ async def generate_roadmap(request: RoadmapRequest, current_user = Depends(get_c
         db.flush()
         new_current_data = Current(
             user_id = current_user.id,
-            Current_phase_id = db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id,
-            Current_topic_id = db.query(Topic).filter(Topic.phase_id == db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id).first().id,
+            current_phase_id = db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id,
+            current_topic_id = db.query(Topic).filter(Topic.phase_id == db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id).first().id,
             total_days = roadmap_json.get("total_duration_weeks", 0) * 7,
             days_count = 0,
 
-            Current_topic = db.query(Topic).filter(Topic.phase_id == db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id).first().topic_name
+            current_topic = db.query(Topic).filter(Topic.phase_id == db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().id).first().topic_name,
+            current_phase = db.query(Phase).filter(Phase.roadmap_id == new_roadmap.id).order_by(Phase.order_index).first().phase_name
 
         )
         db.add(new_current_data)
         db.flush()
         # Store needed attributes before session closes
-        current_topic_id = new_current_data.Current_topic_id
-        current_topic_name = new_current_data.Current_topic
+        current_topic_id = new_current_data.current_topic_id
+        current_topic_name = new_current_data.current_topic
 
     except Exception as e:
         return {"error": f"Failed to save roadmap request: {str(e)}"}

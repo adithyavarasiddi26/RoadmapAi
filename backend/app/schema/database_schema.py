@@ -51,6 +51,7 @@ class Phase(base):
     __tablename__ = "phases"
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     roadmap_id = Column(Integer, ForeignKey("roadmaps.id", ondelete="CASCADE"))
     phase_name = Column(String)
     focus_area = Column(String)
@@ -67,6 +68,7 @@ class Topic(base):
     __tablename__ = "topics"
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     phase_id = Column(Integer, ForeignKey("phases.id", ondelete="CASCADE"))
     topic_name = Column(String)
     days_completed = Column(Integer, default=0)
@@ -81,6 +83,7 @@ class Capstone(base):
     __tablename__ = "capstones"
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     roadmap_id = Column(Integer, ForeignKey("roadmaps.id", ondelete="CASCADE"))
     title = Column(String)
     description = Column(Text)
@@ -128,9 +131,11 @@ class Current(base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id",ondelete="CASCADE"))
-    Current_phase_id = Column(Integer,ForeignKey("phases.id",ondelete="CASCADE"))
-    Current_topic_id = Column(Integer,ForeignKey("topics.id",ondelete="CASCADE"))
+    current_phase_id = Column(Integer,ForeignKey("phases.id",ondelete="CASCADE"))
+    current_topic_id = Column(Integer,ForeignKey("topics.id",ondelete="CASCADE"))
+    capstone_active = Column(Boolean, default=False)
     total_days = Column(Integer)
     days_count = Column(Integer)
 
-    Current_topic = Column(String)
+    current_topic = Column(String)
+    current_phase = Column(String)

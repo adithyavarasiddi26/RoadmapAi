@@ -23,11 +23,11 @@ async def get_daily_tasks(current_user):
         current_data = db.query(Current).filter(Current.user_id == current_user.id).first()
         if not current_data:
             raise HTTPException(status_code=404, detail="Current progress data not found for the user")
-        current_topic = current_data.Current_topic
-        current_phase = db.query(Phase).filter(Phase.id == current_data.Current_phase_id).first()
+        current_topic = current_data.current_topic
+        current_phase = db.query(Phase).filter(Phase.id == current_data.current_phase_id).first()
         if not current_phase:
             raise HTTPException(status_code=404, detail="Current phase data not found for the user")
-        topic = db.query(Topic).filter(Topic.id == current_data.Current_topic_id).first()
+        topic = db.query(Topic).filter(Topic.id == current_data.current_topic_id).first()
         if not topic:
             raise HTTPException(status_code=404, detail="Current topic data not found for the user")
         current_day = topic.days_completed + 1

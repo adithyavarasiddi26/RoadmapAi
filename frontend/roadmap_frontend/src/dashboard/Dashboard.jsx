@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import TopBar from "./modules/TopBar";
 import SideBar from "./modules/SideBar";
 import CreateRoadmapModal from "./modules/CreateRoadmapModal";
@@ -27,6 +27,7 @@ const MOCK_ROADMAPS = [
 ];
 
 const ACTIVITIES = [
+
   { icon: "✅", bg: "rgba(0,255,178,0.1)", text: "Completed Phase 1 of Full-Stack SWE roadmap", time: "2 hours ago" },
   { icon: "🎯", bg: "rgba(123,97,255,0.1)", text: "Unlocked Phase 2 — DSA & System Design", time: "2 hours ago" },
   { icon: "📚", bg: "rgba(255,255,255,0.06)", text: "Added resource: CS50 Problem Sets", time: "Yesterday" },
@@ -180,6 +181,8 @@ export default function Dashboard() {
   const [viewingRoadmap, setViewingRoadmap] = useState(null);
   const [roadmapCard, setRoadmapCard] = useState([]);
   const [showRoadmap, setShowRoadmap] = useState(false);
+  const [overviewData , setOverviewData] = useState(null);
+  const [recentTasks, setRecentTasks] = useState([]);
 
   const handleGenerate = async (formData) => {
     setShowCreate(false);
@@ -206,9 +209,12 @@ export default function Dashboard() {
       const newRoadmap = await axios.get("http://localhost:8000/roadmap", { withCredentials: true }).then(res => res.data).catch(err => {
       console.error("Failed to fetch roadmaps", err);
       });
+      
+       
+      if (newRoadmap && newRoadmap.length > 0) {
       const roadmap_result = {
-        roadmap_title: newRoadmap[0].roadmap_title,
-        total_duration_weeks: newRoadmap[0].total_duration_weeks,
+        roadmap_title: newRoadmap[0].roadmap_title || "Roadmap Title",
+        total_duration_weeks: newRoadmap[0].total_duration_weeks || 0,
         phases: [
           ...newRoadmap[0].phases.map(p => ({
             phase_name: p.phase_name,
@@ -225,20 +231,51 @@ export default function Dashboard() {
           skills_validated: newRoadmap[0].final_capstone.skills_validated
         }
       };
+      
     const roadmap_box = {
       id: 1, title: newRoadmap[0].roadmap_title,
       target: newRoadmap[0].target, progress: 38, weeks: 24, phase: "Phase 2 · DSA & System Design",
       status: "active", tags: [ `${newRoadmap[0].phases.length} Phases`, `${newRoadmap[0].total_duration_weeks} Weeks`]
     }
+    
     setGeneratedRoadmap(roadmap_result);
 
     setViewingRoadmap(roadmap_result);
     setRoadmapCard([roadmap_box]);
+    }
 
   };
+  const get_overview_data = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/overview", { withCredentials: true });
+      console.log("DEBUG: Fetched overview data:", response.data);
+      setOverviewData(response.data);
+    } catch (err) {
+      console.error("Failed to fetch overview data", err);
+    }
+  };
+
+  const get_recently_completed_tasks = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/recent_tasks", { withCredentials: true });
+      if (response.data[0] === "No Task Data") {
+        setRecentTasks(["No Task Data"]);
+      }
+      else {
+        console.log("DEBUG: Fetched recent tasks:", response.data);
+        setRecentTasks(response.data);
+      }
+
+    } catch (err){
+      console.error("Failed to fetch recent tasks",err);
+    }
+  };
+
 
     useEffect(() => {
     handle_roadmap_result();
+    get_overview_data();
+    get_recently_completed_tasks()
     console.log("DEBUG: Fetched roadmap from backend:", roadmapCard);
   }, []);
 
@@ -270,7 +307,7 @@ export default function Dashboard() {
         <SideBar active={activePage} setActivePage={setActivePage} onCreate={() => setShowCreate(true)} />
 
         {/* ── TOPBAR ── */}
-        <TopBar activePage={activePage} logout={logout} />
+        <TopBar activePage={activePage} logout={logout} overviewData={overviewData} />
 
         {/* ── MAIN CONTENT ── */}
         <main className="main">
@@ -282,10 +319,10 @@ export default function Dashboard() {
                 {/* Stats */}
                 <div className="stat-row">
                   {[
-                    { label: "Active Roadmaps", value: "2", suf: "", meta: "↑ 1 this month" },
-                    { label: "Completion Rate", value: "38", suf: "%", meta: "Full-Stack SWE" },
-                    { label: "Study Streak", value: "7", suf: " days", meta: "Personal best" },
-                    { label: "Tasks Done", value: "42", suf: "", meta: "This week: 12" },
+                    { label: "Active Roadmaps", value: overviewData?.active_roadmaps || 0, suf: "", meta: "↑" },
+                    { label: "Completion Rate", value: overviewData?.completion_rate || "0", suf: "%", meta: overviewData?.current_roadmap || "No active roadmap" },
+                    { label: "Study Streak", value: overviewData?.study_streak || 0, suf: " days", meta: overviewData?.study_streak ? "Personal best" : "" },
+                    { label: "Tasks Done", value: overviewData?.tasks_done || 0, suf: "", meta: "" },
                   ].map(s => (
                     <div key={s.label} className="stat-card">
                       <div className="stat-label">{s.label}</div>
@@ -299,9 +336,21 @@ export default function Dashboard() {
                   {/* Skill Overview */}
                   <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: 24 }}>
                     <div className="section-header">
-                      <div className="section-title-sm">Skill <span>Overview</span></div>
+                      <div className="section-title-sm"> <span>Overview :</span> {overviewData?.current_roadmap || "Generate Roadmap"} </div>
                     </div>
-                    <div className="skill-bars">
+                    <div  className="section-title-sm" style={{ fontSize: 13, marginBottom: 18 }}>
+                      Current Phase: <span>{overviewData?.current_phase || "NA"}</span>
+                    </div>
+                    <div  className="section-title-sm" style={{ fontSize: 13, marginBottom: 18 }}>
+                      Current Topic: <span>{overviewData?.current_topic || "NA"}</span>
+                    </div>
+                    <div  className="section-title-sm" style={{ fontSize: 13, marginBottom: 18 }}>
+                      <span>{overviewData?.current_topic_days_completed || 0}/{overviewData?.current_topic_total_days || 0}</span> days remaining for the topic <span>{overviewData?.current_topic || "NA"}</span> 
+                    </div>
+                    <div  className="section-title-sm" style={{ fontSize: 13, marginBottom: 18 }}>
+                      <span>{overviewData?.current_phase_remaining_topics || "0"}</span> Topics are remaining in Phase <span>{overviewData?.current_phase || "NA"}</span>
+                    </div>
+                    {/* <div className="skill-bars">
                       {skills.map(s => (
                         <div key={s.label} className="skill-bar-row">
                           <span className="skill-bar-label">{s.label}</span>
@@ -311,7 +360,7 @@ export default function Dashboard() {
                           <span className="skill-bar-val">{s.val}/5</span>
                         </div>
                       ))}
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* Recent Activity */}
@@ -320,15 +369,21 @@ export default function Dashboard() {
                       <div className="section-title-sm">Recent <span>Activity</span></div>
                     </div>
                     <div className="activity-list">
-                      {ACTIVITIES.slice(0, 3).map((a, i) => (
+                      {recentTasks[0] === "No Task Data" ? (
+                        <div style={{ fontSize: 13, color: "var(--muted)", textAlign: "center", padding: "40px 0" }}>
+                          No completed tasks yet. Complete tasks to see them here!
+                        </div>
+                      ) : (
+                      console.log("DEBUG: Rendering recent tasks:", recentTasks),
+                      recentTasks.map((a, i) => (
                         <div key={i} className="activity-item">
-                          <div className="activity-icon" style={{ background: a.bg }}>{a.icon}</div>
+                          <div className="activity-icon">✅</div>
                           <div>
-                            <div className="activity-text">{a.text}</div>
-                            <div className="activity-time">{a.time}</div>
+                            <div className="activity-text">{a}</div>
+                            {/* <div className="activity-time">{a.time}</div> */}
                           </div>
                         </div>
-                      ))}
+                      )))}
                     </div>
                   </div>
                 </div>
@@ -437,7 +492,7 @@ export default function Dashboard() {
               //   </button>
 
               // </div>
-              < DailyTasks />
+              < DailyTasks overviewData={overviewData} />
             )}
 
           </div>

@@ -26,11 +26,15 @@ app.add_middleware(
 
 
 import routes.google_login
-from routes import Signup, Generate_roadmap, get_roadmap, delete_roadmap, daily_tasks
+from routes import Signup, Generate_roadmap, get_roadmap, delete_roadmap, get_tasks, submit_tasks, get_current_data, Overview, get_recent_tasks
 
 app.include_router(Signup.router)
 app.include_router(Generate_roadmap.router)
 app.include_router(get_roadmap.router)
 app.include_router(delete_roadmap.router)
 app.include_router(routes.google_login.router)
-app.include_router(daily_tasks.router)
+app.include_router(get_tasks.router)
+app.include_router(submit_tasks.router)
+app.include_router(get_current_data.router)
+app.include_router(Overview.router)
+app.include_router(get_recent_tasks.router)
