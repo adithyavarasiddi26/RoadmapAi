@@ -5,12 +5,12 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #050508;
+  --bg: #264653;
   --surface: #0c0c14;
   --surface2: #10101a;
   --border: rgba(255,255,255,0.07);
   --border2: rgba(255,255,255,0.11);
-  --accent: #00FFB2;
+  --accent: #E9C46A;
   --accent2: #7B61FF;
   --danger: #FF4E6A;
   --text: #F0EEF8;
@@ -33,6 +33,14 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   transition: background 0.2s;
 }
 
+.logout-button {
+  background: #c93e53; border: none; color: #ffffff;
+  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  transition: background 0.2s;
+}
+.logout-button:hover { background: #af3547; opacity: 0.9; transition: background 0.2s, opacity 0.2s }
+
 .delete-button:hover { background: #ff4e6a;
   scale: 1.05; box-shadow: 0 0 10px rgba(255,78,106,0.3);  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
@@ -44,8 +52,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
 /* grid bg */
 .grid-bg { position:fixed; inset:0; pointer-events:none; z-index:0;
-  background-image: linear-gradient(rgba(0,255,178,0.025) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,255,178,0.025) 1px,transparent 1px);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.133) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0, 0, 0, 0.137) 1px,transparent 1px);
   background-size:60px 60px; }
 .grid-bg::after { content:''; position:absolute; inset:0;
   background:radial-gradient(ellipse 70% 50% at 50% 0%, rgba(123,97,255,0.07) 0%, transparent 65%); }
@@ -54,7 +62,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .sidebar {
   position:fixed; top:0; left:0; bottom:0; width:232px;
   background:var(--surface); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; z-index:100;
+  display:flex; flex-direction:column; z-index:0;
 }
 .sidebar-logo {
   padding:20px 22px 18px;
@@ -90,7 +98,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .sidebar-footer { padding:16px 12px; border-top:1px solid var(--border); }
 .user-chip { display:flex; align-items:center; gap:10px; padding:10px 12px;
   border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border); }
-.avatar { width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--accent2),var(--accent));
+.avatar { width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent));
   display:flex; align-items:center; justify-content:center;
   font-size:13px; font-weight:700; color:#050508; flex-shrink:0; font-family:'Syne',sans-serif; }
 .user-info { flex:1; min-width:0; }
@@ -143,13 +151,13 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .section-title-sm span { color:var(--accent); }
 
 /* ── ROADMAP CARDS ── */
-.roadmaps-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+.roadmaps-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(600px,1fr)); gap:14px; }
 .roadmap-card {
   background:var(--surface); border:1px solid var(--border); border-radius:14px;
   padding:22px; cursor:pointer; transition:border-color 0.2s, transform 0.15s, background 0.2s;
   position:relative; overflow:hidden;
 }
-.roadmap-card:hover { border-color:rgba(0,255,178,0.2); transform:translateY(-2px); background:rgba(0,255,178,0.02); }
+.roadmap-card:hover { border-color:rgba(255, 247, 0, 0.2); transform:translateY(-2px); background:rgba(0,255,178,0.02); }
 .roadmap-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
 .roadmap-status { font-size:10px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase;
   padding:3px 10px; border-radius:20px; }
@@ -179,8 +187,11 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
 /* ── MODAL OVERLAY ── */
 .overlay {
-  position:fixed; inset:0; background:rgba(5,5,8,0.88);
-  backdrop-filter:blur(16px); z-index:500;
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  width:100vw; height:100vh;
+  background:rgba(5,5,8,0.88);
+  backdrop-filter:blur(16px);
+  z-index:9999;
   display:flex; align-items:center; justify-content:center;
   padding:20px; animation:fadeIn 0.2s ease;
 }

@@ -100,13 +100,7 @@ export default function LandingPage() {
                 <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <button className="btn-hero-ghost">
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" strokeWidth="1.3"/>
-                <path d="M6 5.5l4 2-4 2V5.5z" fill="currentColor"/>
-              </svg>
-              See how it works
-            </button>
+            
           </div>
 
           <div className="scroll-hint">

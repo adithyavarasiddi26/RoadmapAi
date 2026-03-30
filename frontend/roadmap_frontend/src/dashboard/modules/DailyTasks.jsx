@@ -1,5 +1,8 @@
 import { useState, useEffect, use } from "react";
 import axios from "axios";
+import "./DailyTasks.css";
+import TopBar from "./TopBar";
+import { useOutletContext } from 'react-router-dom';
 
 const initialTasks = [
   {
@@ -104,6 +107,7 @@ export default function DailyTasks(overviewData) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentData, setCurrentData] = useState(null);
+  const [fadeOut, setFadeOut] = useState(false);
 
 
   const toggleTask = (id) => {
@@ -142,6 +146,25 @@ useEffect(() => {
   get_current_data();
 }, []);
 
+useEffect(() => {
+  if (submitted) {
+    setFadeOut(false);
+
+    const fadeTimer = setTimeout(() => {
+      setFadeOut(true); // start fading
+    }, 2500); // start fade before disappearing
+
+    const removeTimer = setTimeout(() => {
+      setSubmitted(false); // remove from DOM
+    }, 3000);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
+    };
+  }
+}, [submitted]);
+
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
   const allDone = completedCount === totalCount;
@@ -172,6 +195,7 @@ useEffect(() => {
       setConfetti(pieces);
       setTimeout(() => setSubmitted(true), 600);
       setTimeout(() => setConfetti([]), 2500);
+      fetchTasks(); // Refresh tasks after submission
     } catch (error) {
       console.error("Submit error:", error);
       // Optionally, show an error message to the user
@@ -181,8 +205,12 @@ useEffect(() => {
   };
 
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const { logout } = useOutletContext() || {};
 
   return (
+    <>
+    <TopBar activePage={"tasks"} logout={logout} />
+    
     <div style={{
       minHeight: "100vh",
       background: "#0d1117",
@@ -191,145 +219,10 @@ useEffect(() => {
       padding: "0",
       position: "relative",
       overflow: "hidden",
+      borderRadius: "20px",
     }}>
       {console.log("Fetched daily tasks:", taskDetails)}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #161b22; }
-        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes taskCheck {
-          0% { transform: scale(1); }
-          40% { transform: scale(0.96); }
-          100% { transform: scale(1); }
-        }
-        @keyframes confettiFall {
-          0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.6; }
-        }
-        @keyframes submitPop {
-          0% { transform: scale(1); }
-          30% { transform: scale(0.94); }
-          70% { transform: scale(1.04); }
-          100% { transform: scale(1); }
-        }
-        @keyframes barFill {
-          from { width: 0%; }
-          to { width: var(--target-width); }
-        }
-        @keyframes completionRing {
-          from { stroke-dashoffset: 226; }
-          to { stroke-dashoffset: var(--target-offset); }
-        }
-        .task-row {
-          animation: slideIn 0.35s ease both;
-          transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
-          cursor: pointer;
-          border: 1px solid #21262d;
-          border-radius: 6px;
-          margin-bottom: 8px;
-          padding: 16px 18px;
-          background: #161b22;
-          display: flex;
-          gap: 14px;
-          align-items: flex-start;
-          position: relative;
-          overflow: hidden;
-        }
-        .task-row:hover {
-          border-color: #30363d;
-          background: #1c2128;
-          transform: translateX(2px);
-        }
-        .task-row.completed {
-          background: #0d1117;
-          border-color: #238636;
-        }
-        .task-row.completed:hover {
-          background: #111;
-          border-color: #2ea043;
-        }
-        .task-row::before {
-          content: '';
-          position: absolute;
-          left: 0; top: 0; bottom: 0;
-          width: 3px;
-          background: transparent;
-          border-radius: 6px 0 0 6px;
-          transition: background 0.2s;
-        }
-        .task-row.completed::before {
-          background: #238636;
-        }
-        .task-row.high::before {
-          background: #da3633;
-        }
-        .task-row.high.completed::before {
-          background: #238636;
-        }
-        .check-btn {
-          flex-shrink: 0;
-          width: 20px; height: 20px;
-          display: flex; align-items: center; justify-content: center;
-          margin-top: 2px;
-          transition: transform 0.15s ease;
-        }
-        .check-btn:hover { transform: scale(1.15); }
-        .submit-btn {
-          font-family: inherit;
-          font-size: 13px;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          padding: 10px 24px;
-          border-radius: 6px;
-          border: 1px solid;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          display: flex; align-items: center; gap: 8px;
-        }
-        .submit-btn.active {
-          background: #238636;
-          border-color: #2ea043;
-          color: #fff;
-        }
-        .submit-btn.active:hover {
-          background: #2ea043;
-        }
-        .submit-btn.active.anim {
-          animation: submitPop 0.4s ease;
-        }
-        .submit-btn.disabled {
-          background: #161b22;
-          border-color: #21262d;
-          color: #484f58;
-          cursor: not-allowed;
-        }
-        .submit-btn.done {
-          background: #0d1117;
-          border-color: #238636;
-          color: #57ab5a;
-          cursor: default;
-        }
-        .tag {
-          font-size: 11px;
-          font-weight: 500;
-          padding: 2px 8px;
-          border-radius: 12px;
-          border: 1px solid;
-          display: inline-flex;
-          align-items: center;
-        }
-      `}</style>
+      
 
       {/* Confetti */}
       {/* {confetti.map(p => (
@@ -400,19 +293,24 @@ useEffect(() => {
           <div className="gen-sub">Our AI is building daily tasks for you.</div>
         </div>
       ) : (
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px 10px" }}>
+        taskDetails?.length === 0 ? (
+          <div style={{ fontSize: 13, color: "var(--muted)", textAlign: "center", padding: "40px 0" }}>
+            No tasks found for today. Please check back later!
+          </div>
+        ) : (
+        <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px 10px" }}>
 
         {/* Header row */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "24px" }}>
           <div>
-            <div style={{ fontSize: "11px", color: "#57ab5a", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px", fontWeight: 600 }}>
+            <div style={{ fontSize: "30px", color: "#E9C46A", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "10px", fontWeight: 800 }}>
               ◈ Daily Tasks
             </div>
             <div style={{ fontSize: "17px", color: "#bc6161", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px", fontWeight: 800 }}>
               {console.log("Current data for header:", currentData)}
-              {currentData ? currentData.current_phase : "Loading..."}
+              Phase : {currentData ? currentData.current_phase : "Loading..."}
             </div>
-            <div style={{ fontSize: "11px", color: "#ff0000", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px", fontWeight: 600 }}>
+            <div style={{ fontSize: "17px", color: "#bc6161", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "20px", fontWeight: 600 }}>
               Topic : {currentData ? currentData.current_topic : "Loading..."}
             </div>
             <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#e6edf3", lineHeight: 1.2 }}>
@@ -425,16 +323,16 @@ useEffect(() => {
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: "11px", color: "#848d97", marginBottom: "2px" }}>Completed</div>
-              <div style={{ fontSize: "20px", fontWeight: 700, color: allDone ? "#57ab5a" : "#e6edf3" }}>
-                {completedCount}<span style={{ fontSize: "14px", color: "#484f58" }}>/{totalCount}</span>
+              <div style={{ fontSize: "30px", fontWeight: 700, color: allDone ? "#ebd01f" : "#e6edf3" }}>
+                {completedCount}<span style={{ fontSize: "30px", color: "#484f58" }}>/{totalCount}</span>
               </div>
             </div>
-            <svg width="52" height="52" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="34" fill="none" stroke="#21262d" strokeWidth="6" />
+            <svg width="100" height="100" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="#2b2d21" strokeWidth="6" />
               <circle
                 cx="40" cy="40" r="34"
                 fill="none"
-                stroke={allDone ? "#2ea043" : "#1f6feb"}
+                stroke={allDone ? "#2ea043" : "#ebd01f"}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray="213.6"
@@ -442,7 +340,7 @@ useEffect(() => {
                 transform="rotate(-90 40 40)"
                 style={{ transition: "stroke-dashoffset 0.5s ease, stroke 0.3s ease" }}
               />
-              <text x="40" y="45" textAnchor="middle" fill={allDone ? "#57ab5a" : "#e6edf3"} fontSize="15" fontWeight="700" fontFamily="monospace">
+              <text x="40" y="45" textAnchor="middle" fill={allDone ? "#ebd01f" : "#e6edf3"} fontSize="15" fontWeight="700" fontFamily="monospace">
                 {progressPct}%
               </text>
             </svg>
@@ -458,7 +356,7 @@ useEffect(() => {
         }}>
           {[
             { label: "Total Time", value: formatDuration(totalMins), color: "#848d97" },
-            { label: "Remaining", value: formatDuration(remainingMins), color: allDone ? "#57ab5a" : "#e6edf3" },
+            { label: "Remaining", value: formatDuration(remainingMins), color: allDone ? "#57ab5a" : "#ebd01f" },
             { label: "Time Saved", value: formatDuration(totalMins - remainingMins), color: "#57ab5a" },
           ].map(stat => (
             <div key={stat.label} style={{
@@ -467,8 +365,8 @@ useEffect(() => {
               borderRadius: "6px",
               padding: "14px 16px",
             }}>
-              <div style={{ fontSize: "11px", color: "#848d97", marginBottom: "4px", letterSpacing: "0.05em" }}>{stat.label}</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: stat.color, fontVariantNumeric: "tabular-nums" }}>{stat.value}</div>
+              <div style={{ fontSize: "13px", color: "#848d97", marginBottom: "4px", letterSpacing: "0.05em" }}>{stat.label}</div>
+              <div style={{ fontSize: "25px", fontWeight: 800, color: stat.color, fontVariantNumeric: "tabular-nums" }}>{stat.value}</div>
             </div>
           ))}
         </div>
@@ -483,7 +381,7 @@ useEffect(() => {
             <div style={{
               height: "100%",
               width: `${progressPct}%`,
-              background: allDone ? "linear-gradient(90deg, #238636, #2ea043)" : "linear-gradient(90deg, #1f6feb, #388bfd)",
+              background: allDone ? "linear-gradient(90deg, #238636, #2ea043)" : "linear-gradient(90deg, #ebd01f, #ebd01f)",
               borderRadius: "3px",
               transition: "width 0.4s ease, background 0.3s ease",
             }} />
@@ -502,6 +400,8 @@ useEffect(() => {
             alignItems: "center",
             gap: "14px",
             animation: "slideIn 0.4s ease",
+            opacity: fadeOut ? 0 : 1,
+            transition: "opacity 0.5s ease",
           }}>
             <div style={{ fontSize: "24px" }}>✓</div>
             <div>
@@ -535,7 +435,7 @@ useEffect(() => {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px", flexWrap: "wrap" }}>
                   <span style={{
-                    fontSize: "13px",
+                    fontSize: "20px",
                     fontWeight: 600,
                     color: task.completed ? "#484f58" : "#e6edf3",
                     textDecoration: task.completed ? "line-through" : "none",
@@ -555,13 +455,13 @@ useEffect(() => {
                     color: task.completed ? "#484f58" : (priorityLabel[task.priority]?.color || "#848d97"),
                     borderColor: (task.completed ? "#21262d" : priorityLabel[task.priority]?.color + "44" || "#848d97"),
                     background: "transparent",
-                    fontSize: "10px",
+                    fontSize: "13px",
                   }}>
                     {priorityLabel[task.priority]?.label}
                   </span>
                 </div>
                 <p style={{
-                  fontSize: "12px",
+                  fontSize: "17px",
                   color: task.completed ? "#3d444d" : "#848d97",
                   lineHeight: "1.6",
                   transition: "color 0.2s",
@@ -614,29 +514,23 @@ useEffect(() => {
             }
           </div>
           <button
-            className={`submit-btn ${submitted ? "done" : allDone ? `active${submitAnim ? " anim" : ""}` : "disabled"}`}
+            className={`submit-btn ${allDone ? `active${submitAnim ? " anim" : ""}` : "disabled"}`}
             onClick={handleSubmit}
             disabled={!allDone || submitted}
           >
-            {submitted ? (
-              <>
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 16A8 8 0 118 0a8 8 0 010 16zm3.78-9.72a.75.75 0 00-1.06-1.06L6.75 9.19 5.28 7.72a.75.75 0 00-1.06 1.06l2 2a.75.75 0 001.06 0l4.5-4.5z"/>
-                </svg>
-                Submitted
-              </>
-            ) : (
+            
               <>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.75 4.75v4.69l2.28 1.52a.75.75 0 01-.83 1.25l-2.5-1.667A.75.75 0 017.25 9.5v-4.75a.75.75 0 011.5 0z"/>
                 </svg>
                 Submit Day
               </>
-            )}
+            
           </button>
         </div>
-      </div>)}
+      </div>))}
     </div>
+    </>
     
   );
 }

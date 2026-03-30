@@ -1,6 +1,6 @@
 
 
-from fastapi import APIRouter, Depends, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from schema.Signup_schema import SignupRequest, LoginRequest
 from pwdlib import PasswordHash
 from database.db_connection import session
@@ -18,11 +18,14 @@ password_hasher = PasswordHash.recommended()
 
 @router.get("/api/me")
 async def read_current_user(current_user: User = Depends(get_current_user_from_cookie)):
-    return {
-        "id" : current_user.id,
-        "name": current_user.name,
-        "email": current_user.email
-    }
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    else:
+        return {
+            "id" : current_user.id,
+            "name": current_user.name,
+            "email": current_user.email
+        }
 
 @router.post("/signup")
 async def signup(request: SignupRequest):

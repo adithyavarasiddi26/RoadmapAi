@@ -164,7 +164,7 @@
   .btn-signup:hover {
     opacity: 0.88;
     transform: translateY(-1px);
-    box-shadow: 0 0 32px rgba(0,255,178,0.38);
+    box-shadow: 0 0 32px rgba(255, 234, 0, 0.321);
   }
 
   /* ── HERO ── */
@@ -458,7 +458,7 @@
     opacity: 0;
     transition: opacity 0.3s;
   }
-  .feat-card:hover { background: rgba(0,255,178,0.03); }
+  .feat-card:hover { background: rgba(255, 255, 0, 0.03); }
   .feat-card:hover::before { opacity: 1; }
 
   .feat-icon-wrap {
@@ -472,7 +472,7 @@
     transition: border-color 0.3s;
   }
   .feat-card:hover .feat-icon-wrap {
-    border-color: rgba(0,255,178,0.3);
+    border-color: rgba(238, 255, 0, 0.3);
   }
   .feat-tag {
     font-size: 10px;
@@ -592,7 +592,7 @@
   /* ── CTA ── */
   .cta-band {
     position: relative; z-index: 2;
-    background: #b90101;
+    background: #b98e01db;
     padding: 80px 48px;
     text-align: center;
     overflow: hidden;
@@ -800,7 +800,7 @@
     cursor: pointer;
     margin-top: 8px;
     transition: opacity 0.2s, transform 0.15s;
-    box-shadow: 0 0 30px rgba(0,255,178,0.25);
+    box-shadow: 0 0 30px rgba(255, 225, 0, 0.25);
     letter-spacing: 0.02em;
   }
   .form-submit:hover { opacity: 0.88; transform: translateY(-1px); }

@@ -9,8 +9,8 @@ export default function NavBar( { scrolled, setModal }) {
             <a className="nav-logo">
                 <div className="logo-mark">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M2 12 L7 2 L12 12" stroke="#da0000" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M4 8.5h6" stroke="#da0000" strokeWidth="1.6" strokeLinecap="round"/>
+                    <path d="M2 12 L7 2 L12 12" stroke="#E9C46A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 8.5h6" stroke="#E9C46A" strokeWidth="1.6" strokeLinecap="round"/>
                 </svg>
                 </div>
                 <span className="logo-text">Roadmap<span>AI</span></span>

@@ -61,13 +61,13 @@ export default function Modal({ type, onClose, onSwitch }) {
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-logo">
           <div style={{
-            width: 26, height: 26, border: "1.5px solid #ff0400",
+            width: 26, height: 26, border: "1.5px solid #E9C46A",
             borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
             background: "rgba(0,255,178,0.1)"
           }}>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 10 L6 2 L10 10" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3.5 7h5" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M2 10 L6 2 L10 10" stroke="#E9C46A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.5 7h5" stroke="#E9C46A" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </div>
           <span className="modal-logo-text">Roadmap<span>AI</span></span>

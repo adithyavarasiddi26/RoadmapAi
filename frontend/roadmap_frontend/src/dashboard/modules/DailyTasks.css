@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap'); */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #161b22; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes taskCheck {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.96); }
+    100% { transform: scale(1); }
+}
+@keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+@keyframes submitPop {
+    0% { transform: scale(1); }
+    30% { transform: scale(0.94); }
+    70% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+@keyframes barFill {
+    from { width: 0%; }
+    to { width: var(--target-width); }
+}
+@keyframes completionRing {
+    from { stroke-dashoffset: 226; }
+    to { stroke-dashoffset: var(--target-offset); }
+}
+.task-row {
+    animation: slideIn 0.35s ease both;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    cursor: pointer;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    padding: 16px 18px;
+    background: #161b22;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+}
+.task-row:hover {
+    border-color: #30363d;
+    background: #1c2128;
+    transform: translateX(2px);
+}
+.task-row.completed {
+    background: #0d1117;
+    border-color: #238636;
+}
+.task-row.completed:hover {
+    background: #111;
+    border-color: #2ea043;
+}
+.task-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    border-radius: 6px 0 0 6px;
+    transition: background 0.2s;
+}
+.task-row.completed::before {
+    background: #238636;
+}
+.task-row.high::before {
+    background: #da3633;
+}
+.task-row.high.completed::before {
+    background: #238636;
+}
+.check-btn {
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+    transition: transform 0.15s ease;
+}
+.check-btn:hover { transform: scale(1.15); }
+.submit-btn {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 10px 24px;
+    border-radius: 6px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex; align-items: center; gap: 8px;
+}
+.submit-btn.active {
+    background: #238636;
+    border-color: #2ea043;
+    color: #fff;
+}
+.submit-btn.active:hover {
+    background: #2ea043;
+}
+.submit-btn.active.anim {
+    animation: submitPop 0.4s ease;
+}
+.submit-btn.disabled {
+    background: #161b22;
+    border-color: #21262d;
+    color: #484f58;
+    cursor: not-allowed;
+}
+.submit-btn.done {
+    background: #0d1117;
+    border-color: #238636;
+    color: #57ab5a;
+    cursor: default;
+}
+.tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+}

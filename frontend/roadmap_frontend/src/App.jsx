@@ -6,6 +6,10 @@ import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import PublicRoute from '../PublicRoute'
 import ProtectedRoute from '../ProtectedRoute'
 import axios from 'axios'
+import Roadmap from './dashboard/modules/Roadmap'
+import Overview from './dashboard/modules/Overview'
+import DailyTasks from './dashboard/modules/DailyTasks'
+import { Navigate } from 'react-router-dom'
 
 function App() {
   const [user, setUser] = useState(null);
@@ -26,6 +30,8 @@ function App() {
     axios.post("http://localhost:8000/logout", {}, { withCredentials: true })
       .catch(err => console.error("backend logout error", err))
       .finally(() => setUser(null));
+      //refresh page to reset state and close any open connections (e.g. websocket)
+      window.location.href = "/";
   };
 
   if (loading) return <div>Loading...</div>;
@@ -49,31 +55,21 @@ function App() {
               <Dashboard logout={handleLogout} />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Default route */}
+          <Route index element={<Navigate to="overview" />} />
+
+          {/* Sub routes */}
+          <Route path="overview" element={<Overview />} />
+          <Route path="roadmaps" element={<Roadmap />} />
+          <Route path="dailytasks" element={<DailyTasks />} />
+        </Route>
 
         
       </Routes>
     </Router>
   );
 }
-// function App() {
-//   const [user , setUser] = useState();
-//   const [loading, setLoading] = useState(true);
-//   useEffect(() => {
-//   axios.get("/me", { withCredentials: true })
-//     .then(res => setUser(res.data))
-//     .catch(() => setUser(null));
-// }, []);
-//   if (loading) return <div>Loading...</div>;
 
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<LandingPage />} />
-//         <Route path="/dashboard" element={<Dashboard />} />
-//       </Routes>
-//     </Router>
-//   )
-// }
 
 export default App

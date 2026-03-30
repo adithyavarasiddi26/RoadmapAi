@@ -139,3 +139,5 @@ class Current(base):
 
     current_topic = Column(String)
     current_phase = Column(String)
+    
+    # roadmap_completed = Column(Boolean, default=False)

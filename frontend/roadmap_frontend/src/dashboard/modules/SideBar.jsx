@@ -1,11 +1,11 @@
 import  { useEffect,useState } from "react";
+import { NavLink } from "react-router-dom";
 
 // ─── SIDEBAR NAV ITEMS ────────────────────────────────────────────────────────
 const NAV = [
   { icon: "⚡", label: "Overview", id: "overview" },
-  { icon: "🗺️", label: "My Roadmaps", id: "roadmaps", badge: "3" },
-  { icon: "📅", label: "Today's Tasks", id: "tasks" },
-  { icon: "📈", label: "Progress", id: "progress" },
+  { icon: "🗺️", label: "My Roadmaps", id: "roadmaps", badge: "" },
+  { icon: "📅", label: "Today's Tasks", id: "dailytasks" },
 ];
 
 export default function Dashboard({ activePage, setActivePage }) {
@@ -35,12 +35,11 @@ export default function Dashboard({ activePage, setActivePage }) {
                 <nav className="sidebar-nav">
                 <div className="nav-section-label">Menu</div>
                 {NAV.map(item => (
-                    <button key={item.id} className={`nav-item${activePage === item.id ? " active" : ""}`}
-                    onClick={() => setActivePage(item.id)}>
-                    <span className="nav-icon">{item.icon}</span>
-                    {item.label}
-                    {item.badge && <span className="nav-badge">{item.badge}</span>}
-                    </button>
+                    <NavLink key={item.id} to={`/dashboard/${item.id}`} className={`nav-item${activePage === item.id ? " active" : ""}`} style={{ textDecoration: "none" }}>
+                        <span className="nav-icon">{item.icon}</span>
+                        {item.label}
+                        {item.badge && <span className="nav-badge">{item.badge}</span>}
+                    </NavLink>
                 ))}
     
                 {/* <div className="nav-section-label" style={{ marginTop: 12 }}>Account</div>
@@ -55,7 +54,7 @@ export default function Dashboard({ activePage, setActivePage }) {
                     <div className="user-name">{details.name || "Default Name"}</div>
                     <div className="user-role">{details.email || "default@example.com"}</div>
                     </div>
-                    <div style={{ color: "var(--muted)", cursor: "pointer", fontSize: 14 }}>↗</div>
+                    
                 </div>
                 </div>
             </aside>

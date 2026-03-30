@@ -14,7 +14,7 @@ async def get_overview(current_user = Depends(get_current_user_from_cookie)):
         tasks_done = db.query(DailyTask).filter(DailyTask.user_id == current_user.id, DailyTask.completed == True).count()
         study_streak = db.query(Current).filter(Current.user_id == current_user.id).first().days_count if db.query(Current).filter(Current.user_id == current_user.id).first() else 0
         total_days = db.query(Current).filter(Current.user_id == current_user.id).first().total_days if db.query(Current).filter(Current.user_id == current_user.id).first() else 0
-        completion_rate = (study_streak / total_days) * 100 if total_days > 0 else 0
+        completion_rate = round((study_streak / total_days) * 100,1) if total_days > 0 else 0
 
         current_roadmap = db.query(Roadmap).filter(Roadmap.user_id == current_user.id, Roadmap.status == "active").first().roadmap_title if db.query(Roadmap).filter(Roadmap.user_id == current_user.id, Roadmap.status == "active").first() else "No active roadmap"
         current_instance = db.query(Current).filter(Current.user_id == current_user.id).first()
